@@ -1,5 +1,24 @@
-# Flutter Multi-Screen App — Assignment Guide
+# Flutter Multi-Screen App
+Student Name : Zara Tanvir - SE221035 (8B)
+# Screenshots
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/9ed95cf8-9085-47c4-b6e1-adee99719c6e" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/5e084765-d070-4af4-9118-9fbbe78eb545" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/a6d4206a-4134-4bba-b554-9efb8ac48f32" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/164d487d-0d72-4c91-aca8-01b34b789269" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/ab720324-9ecd-4582-9086-c8f06e6d1ff2" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/cfe1583b-f5f2-4ffb-b24f-f202050990ea" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/4f0dfa90-2595-4d16-be58-e131d2be84f1" width="250"/>
+
+  <img src="https://github.com/user-attachments/assets/d954b66c-ca62-4ccb-b51d-167df1b45edb" width="250"/>
+</p>
 ## Project Structure
 
 ```
