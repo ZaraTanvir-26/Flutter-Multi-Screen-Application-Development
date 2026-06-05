@@ -1,6 +1,54 @@
 # Flutter Multi-Screen App
 Student Name : Zara Tanvir - SE221035 (8B)
-# Screenshots
+
+---
+
+## Assignment 2 — REST API & CRUD Integration
+
+### Branch
+`feature/course-api-integration`
+
+### API Used
+**JSONPlaceholder** — `https://jsonplaceholder.typicode.com`
+
+A free, open fake REST API for testing and prototyping. No authentication required.
+
+### Documentation Followed
+Official guide: https://jsonplaceholder.typicode.com/guide
+
+The `/posts` endpoint is used as the **Courses** resource:
+
+| Field | Maps to |
+|---|---|
+| `id` | Course ID |
+| `userId` | Instructor / category ID |
+| `title` | Course title |
+| `body` | Course description |
+
+### CRUD Operations Implemented
+
+| Operation | HTTP Method | Endpoint | Screen |
+|---|---|---|---|
+| Fetch all courses | GET | `/posts?_limit=20` | CourseListScreen |
+| Add new course | POST | `/posts` | CourseFormScreen (Add mode) |
+| Update course | PUT | `/posts/:id` | CourseFormScreen (Edit mode) |
+| Delete course | DELETE | `/posts/:id` | CourseListScreen (with confirmation) |
+
+### Architecture
+- `lib/services/course_service.dart` — all HTTP logic isolated in a service layer
+- `lib/models/course.dart` — data model with `fromJson` / `toJson`
+- `lib/screens/courses/course_list_screen.dart` — list, delete, navigate
+- `lib/screens/courses/course_form_screen.dart` — dual-purpose add/edit form
+
+### State Handling
+Each API call goes through three explicit states managed via `setState`:
+- **Loading** — `CircularProgressIndicator` shown
+- **Success** — data rendered / success `SnackBar`
+- **Error** — error message with Retry button / error `SnackBar`
+
+---
+
+# Screenshots (Assignment 1)
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/9ed95cf8-9085-47c4-b6e1-adee99719c6e" width="250"/>
@@ -27,7 +75,10 @@ lib/
 ├── models/
 │   ├── gender.dart                  ← Gender enum
 │   ├── subject.dart                 ← Subject model + data
-│   └── user.dart                    ← UserModel
+│   ├── user.dart                    ← UserModel
+│   └── course.dart                  ← Course model (Assignment 2)
+├── services/
+│   └── course_service.dart          ← REST API service layer (Assignment 2)
 ├── controllers/
 │   └── auth_controller.dart         ← All business logic (register/login/logout)
 ├── validators/
@@ -38,7 +89,10 @@ lib/
     ├── registration_screen.dart     ← Screen 1
     ├── login_screen.dart            ← Screen 2
     ├── dashboard_screen.dart        ← Screen 3
-    └── detail_screen.dart           ← Screen 4
+    ├── detail_screen.dart           ← Screen 4
+    └── courses/
+        ├── course_list_screen.dart  ← Course list with CRUD (Assignment 2)
+        └── course_form_screen.dart  ← Add / Edit form (Assignment 2)
 ```
 
 ---
@@ -64,10 +118,10 @@ Registration Screen
   Login Screen
        ↓  (on success)
  Dashboard Screen
-       ↓  (tap subject)
-  Detail Screen
-       ↓  (back button)
- Dashboard Screen
+       ↓  (tap subject)        ↓  (tap "View All Courses")
+  Detail Screen            CourseListScreen  ←──────────────┐
+       ↓  (back button)         ↓  (FAB / Edit button)      │
+ Dashboard Screen          CourseFormScreen ────────────────┘
        ↓  (logout)
   Login Screen
 ```
@@ -75,6 +129,8 @@ Registration Screen
 ---
 
 ## Assignment Requirements Checklist
+
+### Assignment 1 — Authentication & Navigation
 
 | Requirement | File | Status |
 |---|---|---|
@@ -94,6 +150,21 @@ Registration Screen
 | Custom Validator class | app_validator.dart | ✅ |
 | Enum implementation | gender.dart | ✅ |
 | Controller layer (separate from UI) | auth_controller.dart | ✅ |
+
+### Assignment 2 — REST API & CRUD
+
+| Requirement | File | Status |
+|---|---|---|
+| Fetch course list (GET) with loading indicator | course_list_screen.dart | ✅ |
+| Display title, ID, and description | course_list_screen.dart | ✅ |
+| Error state with Retry button | course_list_screen.dart | ✅ |
+| Add new course (POST) | course_form_screen.dart | ✅ |
+| Update UI after successful POST | course_list_screen.dart | ✅ |
+| Edit course (PUT) with pre-filled form | course_form_screen.dart | ✅ |
+| Delete course (DELETE) with confirmation dialog | course_list_screen.dart | ✅ |
+| Remove item from UI after deletion | course_list_screen.dart | ✅ |
+| Separate service layer for API calls | course_service.dart | ✅ |
+| Loading / success / error state handling | course_list_screen.dart | ✅ |
 
 ---
 

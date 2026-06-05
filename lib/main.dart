@@ -16,7 +16,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Student App',
-      debugShowCheckedModeBanner: false,   // hides the red "DEBUG" ribbon
+      debugShowCheckedModeBanner: false,
+      locale: const Locale('en', 'US'),
+      supportedLocales: const [Locale('en', 'US')],
 
       // ── App-wide theme ─────────────────────────────────────
       theme: ThemeData(

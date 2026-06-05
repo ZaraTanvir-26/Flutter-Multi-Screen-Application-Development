@@ -1,9 +1,5 @@
 // ============================================================
-// screens/dashboard_screen.dart
-//
-// Screen 3 — Dashboard
-// Shows: user name + avatar, list of subjects, logout button
-// Tapping a subject → Detail screen
+// screens/dashboard_screen.dart — Dashboard + API Courses
 // ============================================================
 
 import 'package:flutter/material.dart';
@@ -11,13 +7,11 @@ import '../controllers/auth_controller.dart';
 import '../models/subject.dart';
 import 'detail_screen.dart';
 import 'login_screen.dart';
+import 'courses/course_list_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
-  // ----------------------------------------------------------
-  // Logout — clear auth state and go back to Login
-  // ----------------------------------------------------------
   void _logout(BuildContext context) {
     AuthController.logout();
     Navigator.pushAndRemoveUntil(
@@ -29,21 +23,18 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the logged-in user from the controller
     final user = AuthController.currentUser!;
 
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text('Dashboard'),
-        automaticallyImplyLeading: false, // no back button
+        automaticallyImplyLeading: false,
         actions: [
-          // Logout button in the top-right corner
           TextButton.icon(
             onPressed: () => _logout(context),
             icon: const Icon(Icons.logout, color: Colors.white),
-            label: const Text('Logout',
-                style: TextStyle(color: Colors.white)),
+            label: const Text('Logout', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -53,7 +44,7 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ── User info card ───────────────────────────────
+            // User info card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -63,12 +54,10 @@ class DashboardScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Avatar placeholder (circle with initials)
                   CircleAvatar(
                     radius: 30,
                     backgroundColor: Colors.white.withOpacity(0.3),
                     child: Text(
-                      // Show first letter of the name
                       user.firstName[0].toUpperCase(),
                       style: const TextStyle(
                         color: Colors.white,
@@ -82,7 +71,7 @@ class DashboardScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hello, ${user.firstName}! 👋',
+                        'Hello, ' + user.firstName + '!',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -105,27 +94,91 @@ class DashboardScreen extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            // ── Section title ────────────────────────────────
+            // Subjects section
             const Text(
               'Your Subjects',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
               'Tap a subject to view details',
-              style: TextStyle(
-                color: Colors.grey.shade500,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            ...appSubjects.map((subject) => _SubjectCard(subject: subject)),
+
+            const SizedBox(height: 32),
+
+            // API Courses section
+            const Text(
+              'API Courses',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Browse, add, edit and delete courses via REST API',
+              style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
             ),
             const SizedBox(height: 16),
 
-            // ── Subject list ─────────────────────────────────
-            // Build one card per subject using a loop
-            ...appSubjects.map((subject) => _SubjectCard(subject: subject)),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CourseListScreen()),
+              ),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.indigo.shade700, Colors.indigo.shade400],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.indigo.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.cloud_download_outlined,
+                        color: Colors.white, size: 36),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'View All Courses',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Powered by JSONPlaceholder REST API',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -134,28 +187,23 @@ class DashboardScreen extends StatelessWidget {
 }
 
 // ------------------------------------------------------------------
-// Subject card widget
-// Tapping it navigates to the Detail screen with the subject data.
+// _SubjectCard — individual subject tile
 // ------------------------------------------------------------------
 class _SubjectCard extends StatelessWidget {
   final Subject subject;
   const _SubjectCard({required this.subject});
 
-  // Parse the hex color string into a Flutter Color
   Color get _color {
     final hex = subject.bannerColor.replaceAll('#', '');
-    return Color(int.parse('FF$hex', radix: 16));
+    return Color(int.parse('FF' + hex, radix: 16));
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      // Tap gesture → navigate to Detail screen
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => DetailScreen(subject: subject),
-        ),
+        MaterialPageRoute(builder: (_) => DetailScreen(subject: subject)),
       ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
@@ -172,7 +220,6 @@ class _SubjectCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Colored left accent bar
             Container(
               width: 6,
               height: 80,
@@ -194,23 +241,18 @@ class _SubjectCard extends StatelessWidget {
                     Text(
                       subject.name,
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
+                          fontWeight: FontWeight.bold, fontSize: 15),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subject.schedule,
                       style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
+                          color: Colors.grey.shade600, fontSize: 12),
                     ),
                   ],
                 ),
               ),
             ),
-            // Chevron arrow
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Icon(Icons.chevron_right, color: Colors.grey.shade400),
