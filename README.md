@@ -24,7 +24,9 @@ Student Name : Zara Tanvir - SE221035 (8B)
   <img width="617" height="891" alt="10" src="https://github.com/user-attachments/assets/aba9fe24-2115-4ecd-b22d-0fa43a4b4f46" />
 <img width="627" height="900" alt="11" src="https://github.com/user-attachments/assets/4c90a751-9626-493b-b24f-2b9233e7c700" />
 <img width="612" height="906" alt="12" src="https://github.com/user-attachments/assets/93f72a01-d346-4586-92b4-941d952765db" />
+<img width="617" height="905" alt="image (1)" src="https://github.com/user-attachments/assets/f05d81cc-fcaf-464c-b3bf-5ce364940aaa" />
 
+  <img width="622" height="903" alt="image (2)" src="https://github.com/user-attachments/assets/591bcefc-5b0e-4488-8a5a-9d6dc577183d" />
 
 
 </p>
