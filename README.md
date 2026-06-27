@@ -85,7 +85,7 @@
 
 <table>
 <tr>
-<th>Course Search Result</th>
+<th>Offline banner (Hive cache)</th>
 </tr>
 
 <tr>
@@ -99,7 +99,7 @@
 
 <table>
 <tr>
-<th>Final App Preview</th>
+<th>Search/Filter</th>
 </tr>
 
 <tr>
@@ -170,24 +170,24 @@ Registration Screen
 
 ---
 
-# ✅ Assignment Requirements Checklist
+# Assignment Requirements Checklist
 
 | Requirement | Status |
 |-------------|:------:|
-| Registration Form | ✅ |
-| Email Validation | ✅ |
-| Password Validation | ✅ |
-| Confirm Password | ✅ |
-| Gender Enum | ✅ |
-| Login Screen | ✅ |
-| Show/Hide Password | ✅ |
-| Remember Me | ✅ |
-| Dashboard | ✅ |
-| Subject List | ✅ |
-| Detail Screen | ✅ |
-| Logout | ✅ |
-| Custom Validator | ✅ |
-| MVC Structure | ✅ |
+| Registration Form | done |
+| Email Validation | done |
+| Password Validation | done |
+| Confirm Password | done |
+| Gender Enum | done |
+| Login Screen | done |
+| Show/Hide Password | done |
+| Remember Me | done|
+| Dashboard | done |
+| Subject List | done |
+| Detail Screen | done |
+| Logout | done |
+| Custom Validator | done |
+| MVC Structure | done |
 
 ---
 
