@@ -3,6 +3,62 @@ Student Name : Zara Tanvir - SE221035 (8B)
 
 ---
 
+## Assignment 3 — Offline Support & State Management
+
+### Branch
+`feature/offline-cache-and-state-manangement`
+
+### Packages Used
+
+| Package | Version | Purpose |
+|---|---|---|
+| `provider` | ^6.1.2 | State management (ChangeNotifier) |
+| `shared_preferences` | ^2.2.2 | Local cache / offline storage |
+| `http` | ^1.2.0 | REST API calls |
+
+### Architecture
+
+```
+UI Screens
+    │
+    ▼
+CourseProvider  (ChangeNotifier — manages loading/success/error/empty states)
+    │
+    ▼
+CourseRepository  (decides: API or local cache?)
+    │
+    ├──▶  CourseService          (HTTP only — GET/POST/PUT/DELETE)
+    └──▶  CourseLocalDataSource  (SharedPreferences — save/load JSON)
+```
+
+### Offline Support Approach
+
+On every `fetchCourses()` call the repository first attempts the live API. If the call succeeds, the result is written to `SharedPreferences` as a JSON string (cache). If the API call throws any exception (no network, timeout, DNS failure), the repository silently falls back to the cached JSON. The UI shows an orange offline banner with a "last cached" timestamp whenever data is served from cache.
+
+### State Management Approach
+
+`CourseProvider` (extends `ChangeNotifier`) owns all course state:
+
+- **`CourseStatus`** enum: `initial → loading → success | error | empty`
+- **Loading state** — spinner shown while fetching
+- **Success state** — course list rendered via `Consumer<CourseProvider>`
+- **Error state** — error message + Retry button
+- **Empty state** — prompt to add first course
+- **Optimistic updates** — deletes and edits are applied instantly to the in-memory list; the API call runs in the background; failure triggers automatic rollback + SnackBar
+
+No `setState` is used for data logic in `CourseListScreen` — only `Consumer<CourseProvider>` and `context.read<CourseProvider>()`.
+
+### New Features (Assignment 3)
+
+- Offline cache with timestamp banner
+- Search / filter bar (title + description)
+- Pull-to-refresh
+- Proper empty-state UI
+- Optimistic deletes with rollback on failure
+- Clean architecture: UI → Provider → Repository → Service + LocalDataSource
+
+---
+
 ## Assignment 2 — REST API & CRUD Integration
 
 ### Branch

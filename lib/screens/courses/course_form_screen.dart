@@ -1,22 +1,20 @@
 // ============================================================
 // screens/courses/course_form_screen.dart
 //
-// Dual-purpose form screen:
-//   • course == null  → Add mode  (POST /posts)
-//   • course != null  → Edit mode (PUT  /posts/:id)
+// Dual-purpose Add / Edit form.
+// Calls CourseProvider directly — no setState for data logic.
 //
-// Pre-fills existing data in edit mode.
-// Returns the saved Course object to the caller on success.
+//   course == null  -> Add mode  (POST)
+//   course != null  -> Edit mode (PUT)
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/course.dart';
-import '../../services/course_service.dart';
+import '../../providers/course_provider.dart';
 
 class CourseFormScreen extends StatefulWidget {
-  /// Pass a course to edit it; leave null to create a new one.
   final Course? course;
-
   const CourseFormScreen({super.key, this.course});
 
   @override
@@ -25,26 +23,21 @@ class CourseFormScreen extends StatefulWidget {
 
 class _CourseFormScreenState extends State<CourseFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  final CourseService _service = CourseService();
-
   late final TextEditingController _titleController;
   late final TextEditingController _bodyController;
 
+  // Local loading flag — only for the spinner on the Save button
   bool _isSaving = false;
 
-  // Convenience flag
   bool get _isEditMode => widget.course != null;
 
   @override
   void initState() {
     super.initState();
-    // Pre-fill fields in edit mode
-    _titleController = TextEditingController(
-      text: widget.course?.title ?? '',
-    );
-    _bodyController = TextEditingController(
-      text: widget.course?.body ?? '',
-    );
+    _titleController =
+        TextEditingController(text: widget.course?.title ?? '');
+    _bodyController =
+        TextEditingController(text: widget.course?.body ?? '');
   }
 
   @override
@@ -55,58 +48,44 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
   }
 
   // ----------------------------------------------------------
-  // Save — POST (add) or PUT (update)
+  // Save — delegates to CourseProvider
   // ----------------------------------------------------------
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
 
-    try {
-      Course result;
+    final provider = context.read<CourseProvider>();
+    bool ok;
 
-      if (_isEditMode) {
-        // UPDATE existing course
-        final updated = widget.course!.copyWith(
-          title: _titleController.text.trim(),
-          body: _bodyController.text.trim(),
-        );
-        result = await _service.updateCourse(updated);
-      } else {
-        // CREATE new course
-        result = await _service.createCourse(
-          title: _titleController.text.trim(),
-          body: _bodyController.text.trim(),
-        );
-      }
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            _isEditMode
-                ? 'Course updated successfully!'
-                : 'Course added successfully!',
-          ),
-          backgroundColor: Colors.green,
-        ),
+    if (_isEditMode) {
+      final updated = widget.course!.copyWith(
+        title: _titleController.text.trim(),
+        body: _bodyController.text.trim(),
       );
-
-      // Return the saved course to the list screen
-      Navigator.pop(context, result);
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: ${e.toString().replaceFirst("Exception: ", "")}',
-          ),
-          backgroundColor: Colors.red,
-        ),
+      ok = await provider.updateCourse(updated);
+    } else {
+      ok = await provider.addCourse(
+        title: _titleController.text.trim(),
+        body: _bodyController.text.trim(),
       );
     }
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? (_isEditMode
+                ? 'Course updated successfully!'
+                : 'Course added successfully!')
+            : 'Failed — please try again.'),
+        backgroundColor: ok ? Colors.green : Colors.red,
+      ),
+    );
+
+    if (ok) Navigator.pop(context);
   }
 
   // ----------------------------------------------------------
@@ -127,7 +106,7 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
 
-              // ── Info card ─────────────────────────────────
+              // Edit mode — info chip
               if (_isEditMode)
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
@@ -143,7 +122,8 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
                           color: Colors.indigo, size: 18),
                       const SizedBox(width: 10),
                       Text(
-                        'Editing Course ID: ${widget.course!.id}',
+                        'Editing Course ID: ' +
+                            widget.course!.id.toString(),
                         style: const TextStyle(
                             color: Colors.indigo, fontSize: 13),
                       ),
@@ -151,11 +131,10 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
                   ),
                 ),
 
-              // ── Title field ───────────────────────────────
-              const Text(
-                'Course Title',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
+              // Title field
+              const Text('Course Title',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 14)),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _titleController,
@@ -165,18 +144,18 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      borderRadius: BorderRadius.circular(10)),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide:
+                        BorderSide(color: Colors.grey.shade300),
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
                     return 'Title is required';
                   }
-                  if (value.trim().length < 3) {
+                  if (v.trim().length < 3) {
                     return 'Title must be at least 3 characters';
                   }
                   return null;
@@ -185,34 +164,33 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
 
               const SizedBox(height: 20),
 
-              // ── Description field ─────────────────────────
-              const Text(
-                'Description',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-              ),
+              // Description field
+              const Text('Description',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 14)),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _bodyController,
                 maxLines: 5,
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  hintText: 'Enter a brief course description…',
+                  hintText: 'Enter a brief course description...',
                   filled: true,
                   fillColor: Colors.white,
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+                      borderRadius: BorderRadius.circular(10)),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderSide:
+                        BorderSide(color: Colors.grey.shade300),
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                validator: (v) {
+                  if (v == null || v.trim().isEmpty) {
                     return 'Description is required';
                   }
-                  if (value.trim().length < 10) {
+                  if (v.trim().length < 10) {
                     return 'Description must be at least 10 characters';
                   }
                   return null;
@@ -221,7 +199,7 @@ class _CourseFormScreenState extends State<CourseFormScreen> {
 
               const SizedBox(height: 32),
 
-              // ── Save button ───────────────────────────────
+              // Save button
               SizedBox(
                 height: 50,
                 child: ElevatedButton(

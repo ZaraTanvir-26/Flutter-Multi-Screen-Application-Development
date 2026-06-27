@@ -1,12 +1,11 @@
 // ============================================================
 // models/course.dart
 //
-// Represents a course fetched from the JSONPlaceholder API.
-// Maps to the /posts endpoint:
-//   id       → course id
-//   userId   → instructor id (used as category colour seed)
-//   title    → course title
-//   body     → course description
+// Maps to JSONPlaceholder /posts endpoint:
+//   id       -> course id
+//   userId   -> instructor/category id
+//   title    -> course title
+//   body     -> course description
 // ============================================================
 
 class Course {
@@ -32,14 +31,22 @@ class Course {
     );
   }
 
-  // ── JSON serialization ────────────────────────────────────
+  // ── Full JSON (includes id) — used for local storage ─────
   Map<String, dynamic> toJson() => {
+        'id': id,
         'userId': userId,
         'title': title,
         'body': body,
       };
 
-  // ── CopyWith (for local optimistic updates) ───────────────
+  // ── API payload for POST (no id) ─────────────────────────
+  Map<String, dynamic> toApiJson() => {
+        'userId': userId,
+        'title': title,
+        'body': body,
+      };
+
+  // ── CopyWith ──────────────────────────────────────────────
   Course copyWith({int? id, int? userId, String? title, String? body}) {
     return Course(
       id: id ?? this.id,
@@ -48,4 +55,11 @@ class Course {
       body: body ?? this.body,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is Course && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

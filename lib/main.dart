@@ -3,7 +3,13 @@
 // ============================================================
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'local/course_local_data_source.dart';
+import 'providers/course_provider.dart';
+import 'repositories/course_repository.dart';
 import 'screens/registration_screen.dart';
+import 'services/course_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,39 +20,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Student App',
-      debugShowCheckedModeBanner: false,
-      locale: const Locale('en', 'US'),
-      supportedLocales: const [Locale('en', 'US')],
-
-      // ── App-wide theme ─────────────────────────────────────
-      theme: ThemeData(
-        // Primary color used throughout the app
-        primarySwatch: Colors.indigo,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-
-        // Default AppBar style
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.indigo,
-          foregroundColor: Colors.white,
-          elevation: 0,
-        ),
-
-        // Default ElevatedButton style
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.indigo,
-            foregroundColor: Colors.white,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CourseProvider>(
+          create: (_) => CourseProvider(
+            repository: CourseRepository(
+              service: CourseService(),
+              local: CourseLocalDataSource(),
+            ),
           ),
         ),
+      ],
+      child: MaterialApp(
+        title: 'Student App',
+        debugShowCheckedModeBanner: false,
+        locale: const Locale('en', 'US'),
+        supportedLocales: const [Locale('en', 'US')],
+        theme: ThemeData(
+          primarySwatch: Colors.indigo,
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+          useMaterial3: true,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.indigo,
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.indigo,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ),
+        home: const RegistrationScreen(),
       ),
-
-      // ── Starting screen ────────────────────────────────────
-      // App starts at the Registration screen.
-      // After registering, the user is sent to Login.
-      home: const RegistrationScreen(),
     );
   }
 }
